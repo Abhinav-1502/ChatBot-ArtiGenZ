@@ -1,0 +1,63 @@
+from langchain_openai import ChatOpenAI
+from langchain.chains.retrieval import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import PromptTemplate
+from retrieval import load_FAISS_retriever
+from langchain_community.callbacks import get_openai_callback
+
+def generate(question, retriever):
+    llm = ChatOpenAI(model="gpt-4o")
+
+
+############ PROMPT ####################
+    prompt = PromptTemplate.from_template("""
+                                          
+    You are an assistant answering questions based on Oracle documentation.
+
+    Use only the context below to answer the user's question, 
+    go through the entire context to find relevant information to present a complete answer to user. 
+    If unsure, say "I don't know."
+
+    Context:
+    {context}
+
+    Question: {input}
+                                          
+    """)
+
+    # This handles injecting context into prompt
+    stuff_chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
+
+    rag_chain = create_retrieval_chain(retriever, stuff_chain)
+
+    response = rag_chain.invoke({"input": question})
+
+    # Measure token usage and cost
+    with get_openai_callback() as cb:
+
+        response = rag_chain.invoke({"input": question})
+        # print("🧠 Answer:", response["answer"])
+        
+        print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
+        print("🔢 Prompt tokens:", cb.prompt_tokens)
+        print("📝 Completion tokens:", cb.completion_tokens)
+        print("📦 Total tokens:", cb.total_tokens)
+        print("💰 Cost (USD):", cb.total_cost)
+        print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
+
+    return response
+
+if __name__ == "__main__":
+
+    print("\n processing ... \n")
+
+    faiss_retriever = load_FAISS_retriever().as_retriever()
+
+    question = "how to create a supplier account?"
+
+    print("\n generating response for question:",question," ... \n")  
+
+    response = generate(question, faiss_retriever)
+
+    print("\n🧠 #################   Answer   ###################\n\n", response['answer'], "\n")

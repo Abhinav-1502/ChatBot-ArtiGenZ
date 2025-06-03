@@ -2,7 +2,7 @@ import fitz
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import json
-
+    
 def extract_paragraphs(pdf_path):
     doc = fitz.open(pdf_path)
     paragraphs = []
@@ -30,7 +30,7 @@ def group_paragraphs(paragraphs, group_size=3):
         grouped.append(Document(page_content=content.strip(), metadata=metadata))
     return grouped
 
-def chunk_documents(docs, chunk_size=700, chunk_overlap=100):
+def chunk_documents(docs, chunk_size=700, chunk_overlap=200):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
