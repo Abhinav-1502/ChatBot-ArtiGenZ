@@ -11,14 +11,14 @@ def generate(question, retriever):
 
 
 ############ PROMPT ####################
-    prompt = PromptTemplate.from_template("""
+    prompt = PromptTemplate.from_template("""                            
                                           
     You are an assistant answering questions based on Oracle documentation.
-
+    
     Use only the context below to answer the user's question, 
     go through the entire context to find relevant information to present a complete answer to user. 
     If unsure, say "I don't know."
-
+    
     Context:
     {context}
 
@@ -33,18 +33,18 @@ def generate(question, retriever):
 
     response = rag_chain.invoke({"input": question})
 
-    # Measure token usage and cost
-    with get_openai_callback() as cb:
+    # # Measure token usage and cost
+    # with get_openai_callback() as cb:
 
-        response = rag_chain.invoke({"input": question})
-        # print("🧠 Answer:", response["answer"])
+    #     response = rag_chain.invoke({"input": question})
+    #     # print("🧠 Answer:", response["answer"])
         
-        print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
-        print("🔢 Prompt tokens:", cb.prompt_tokens)
-        print("📝 Completion tokens:", cb.completion_tokens)
-        print("📦 Total tokens:", cb.total_tokens)
-        print("💰 Cost (USD):", cb.total_cost)
-        print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
+    #     print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
+    #     print("🔢 Prompt tokens:", cb.prompt_tokens)
+    #     print("📝 Completion tokens:", cb.completion_tokens)
+    #     print("📦 Total tokens:", cb.total_tokens)
+    #     print("💰 Cost (USD):", cb.total_cost)
+    #     print("/n $$$$$$$$$$$$Prompt Cost $$$$$$$$$$$$")
 
     return response
 
@@ -54,10 +54,19 @@ if __name__ == "__main__":
 
     faiss_retriever = load_FAISS_retriever().as_retriever()
 
-    question = "how to create a supplier account?"
+    question = "how to setup self service invoices?"
 
     print("\n generating response for question:",question," ... \n")  
 
     response = generate(question, faiss_retriever)
 
     print("\n🧠 #################   Answer   ###################\n\n", response['answer'], "\n")
+
+    print("\n\n ####################### Context (Chunks retrieved) ####################### \n\n")
+
+    for i in response['context']:
+        print(i)
+        print("\n\n")
+
+    
+
