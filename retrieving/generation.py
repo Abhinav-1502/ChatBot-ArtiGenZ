@@ -13,11 +13,17 @@ def generate(question, retriever):
 ############ PROMPT ####################
     prompt = PromptTemplate.from_template("""                            
                                           
-    You are an assistant answering questions based on Oracle documentation.
-    
-    Use only the context below to answer the user's question, 
-    go through the entire context to find relevant information to present a complete answer to user. 
-    If unsure, say "I don't know."
+    You are a helpful assistant specialized in Oracle documentation.
+
+    Answer the user's question **only** using the provided context. 
+    Read through **all** the context to construct the most accurate and complete response. 
+    Do **not** rely on prior knowledge. If the answer cannot be found in the context, 
+    reply with: "I'm sorry, I don't have enough information to answer that right now."
+
+    Always aim to:
+    - Provide a **clear and concise** explanation
+    - Reference relevant Oracle-specific terms if applicable
+    - Avoid adding assumptions or extra information
     
     Context:
     {context}
@@ -54,7 +60,7 @@ if __name__ == "__main__":
 
     faiss_retriever = load_FAISS_retriever().as_retriever()
 
-    question = "how to setup self service invoices?"
+    question = "What is facebook?"
 
     print("\n generating response for question:",question," ... \n")  
 
