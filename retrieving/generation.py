@@ -23,7 +23,6 @@ def getRagPrompt():
         •	Focuses on Oracle-specific terms or behavior when relevant
         •	Quotes directly from documentation when appropriate
         •	Avoids mentioning how the answer was found or processed
-
     
     Context:
     {context}
@@ -67,7 +66,7 @@ def generate(question, retriever):
 
 
 ## Helper function to get the token cost for the LLM call
-def helper_getCost(rag_chain):
+def helper_getCost(rag_chain, question):
     # Measure token usage and cost
     with get_openai_callback() as cb:
 

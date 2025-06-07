@@ -138,18 +138,33 @@ def process_sql_generator(question:str):
             )
         ).model_dump()
     
+    sql_data = response.get('results')
+
+    sql_data = add_dollar_sign(sql_data)
+    
     ## Return valid SQL table response
     return ChatResponse(
         status='success',
         source='SQL',
         message=response.get('message'),
-        bot_response=response.get('results'),
+        bot_response=sql_data,
         meta=MetaData(
             sql_query=response.get('sql_query'),
             rewritten_query=question
         )
     ).model_dump()
 
+
+def add_dollar_sign(sql_data):
+    
+
+    for data in sql_data:
+        if 'Total_Price' in data:
+            data['Total_Price'] = "$"+str(data['Total_Price'])
+        if 'Unit_Price' in data:
+            data['Unit_Price'] = "$"+str(data['Unit_Price'])
+    return sql_data
+        
 
 
 

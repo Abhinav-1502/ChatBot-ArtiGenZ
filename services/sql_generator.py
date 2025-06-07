@@ -24,9 +24,7 @@ def create_connection():
         print(f"Error connecting to MySQL: {err}")
         return None
     
-
-
-
+    
 def generate_prompt(question):
     return f"""
 You are a financial database query assistant. Convert ONLY finance-related questions into MySQL queries.
