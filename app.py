@@ -3,12 +3,19 @@ from fastapi import FastAPI, Request, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from services.initiator import handle_user_input
 from pydantic import BaseModel
+import os
 
 app = FastAPI()
 
+#Read and split allowed origins
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "")
+origins = [origin.strip() for origin in allowed_origins.split(",") if origin.strip()]
+
+print(origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Replace with specific origins in production
+    allow_origins=origins,  # Replace with specific origins in production
     allow_credentials=True,
     allow_methods=["*"],  # GET, POST, PUT, etc.
     allow_headers=["*"],
@@ -38,6 +45,12 @@ async def chat(input: ChatInput):
 
     chat_history = session_store.get(session_id, [])
 
+    # ✅ Refresh session after 20 user questions
+    user_messages = [msg for msg in chat_history if "user" in msg]
+    if len(user_messages) >= 20:
+        chat_history = []  # Clear the chat history
+        session_store[session_id] = chat_history
+
     try:
         response = await handle_user_input(question, chat_history)
     except Exception as e:
@@ -59,5 +72,25 @@ async def get_history(request: Request):
     if history is None:
         return {"message": "Session not found", "history": []}
     return {"session_id": jsonBody["session_id"], "history": history}
+
+
+@api_router.delete("/chat/history")
+async def delete_history(request: Request):
+    jsonBody = await request.json()
+    session_id = jsonBody.get("session_id", "")
+    if (session_id == ""):
+        return {
+            "Please inlcude session_id in the body"
+        }
+    if session_store.get(session_id, 0) == 0:
+        return {
+            "session doesn't exist"
+        }
+    
+    session_store.pop(session_id)
+
+    return {
+        f"sesssion with id {session_id} deleted successfully"
+    }
 
 app.include_router(api_router)
