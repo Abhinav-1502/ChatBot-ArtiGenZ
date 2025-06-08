@@ -64,7 +64,7 @@ async def handle_user_input(question: str, chat_history: str):
         status="success",
         message="The question is invalid, classified as out of context",
         bot_response="Looks like you're asking about a topic that is out of context, " \
-        "Feel free to ask any question regarding fincancial data",
+        "Feel free to ask any question regarding financial data",
         source="Classification",
         meta=MetaData(
             rewritten_query=question
